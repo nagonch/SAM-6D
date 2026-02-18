@@ -199,14 +199,18 @@ class YCBV_LF:
         object_pose = np.loadtxt(object_pose_path)
         return {
             "rgb": rgb_image,
-            "mask": object_mask.astype(np.bool),
+            "mask": object_mask.astype(bool),
             "depth": depth_image,
             "pose": object_pose.astype(np.float32),
         }
 
 
 class LIFT:
-    def __init__(self, data_path, models_path=None):
+    def __init__(
+        self,
+        data_path,
+        models_path="/home/ngoncharov/cvpr2026/FoundationPose/bundlesdf/output_lift",
+    ):
         assert os.path.exists(data_path), f"Data path {data_path} does not exist."
         self.data_path = data_path
         self.sequence_name = data_path.split("/")[-1]
@@ -263,7 +267,7 @@ class LIFT:
         object_pose = np.linalg.inv(self.camera_pose) @ object_pose
         return {
             "rgb": rgb_image,
-            "mask": object_mask.astype(np.bool),
+            "mask": object_mask.astype(bool),
             "depth": depth_image,
             "pose": object_pose.astype(np.float32),
         }
@@ -331,9 +335,9 @@ class DatasetConverter:
 
 # Example usage
 if __name__ == "__main__":
-    output_dir = "input_datasets"
+    output_dir = "LiFT_dataset"
     converter = DatasetConverter(output_dir)
-    dataset_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/ycb_in_eoat"
+    dataset_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/LiFT_dataset"
     for sequence in tqdm(os.listdir(dataset_dir), "converting"):
         if sequence.endswith(".sh") or sequence in ["prod_ref", "models", "ref_views"]:
             continue
@@ -341,5 +345,5 @@ if __name__ == "__main__":
             print(f"Sequence {sequence} already converted, skipping.")
             continue
         print(f"Converting sequence: {sequence}")
-        dataset = EOAT(f"{dataset_dir}/{sequence}")
+        dataset = LIFT(f"{dataset_dir}/{sequence}")
         converter.convert(dataset)
