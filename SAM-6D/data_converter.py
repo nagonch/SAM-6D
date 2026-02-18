@@ -2,6 +2,10 @@ import numpy as np
 import os
 import trimesh
 from PIL import Image
+from tqdm import tqdm
+import json
+from pathlib import Path
+
 
 sequence_names = [
     "bleach_hard_00_03_chaitanya",
@@ -265,8 +269,77 @@ class LIFT:
         }
 
 
+class DatasetConverter:
+    def __init__(self, output_dir):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def process_mesh(self, mesh):
+        """Scale mesh from meters to mm and center at origin."""
+        new_mesh = mesh.copy()
+        # 1. Convert meters to mm
+        new_mesh.apply_scale(1000.0)
+        # 2. Center at origin (subtract centroid/mean of vertices)
+        centroid = new_mesh.vertices.mean(axis=0)
+        new_mesh.vertices -= centroid
+        return new_mesh
+
+    def save_frame(self, sequence_folder, frame_idx, data, mesh, camera_intrinsics):
+        """Saves the 4 required files into a specific folder."""
+        # Create folder for this specific frame within the sequence
+        save_path = sequence_folder / f"frame_{frame_idx:04d}"
+        save_path.mkdir(parents=True, exist_ok=True)
+
+        # 1. camera.json
+        # Flatten K matrix: [fx, 0, cx, 0, fy, cy, 0, 0, 1]
+        cam_k_flat = camera_intrinsics.flatten().tolist()
+        cam_data = {"cam_K": cam_k_flat, "depth_scale": 1.0}
+        with open(save_path / "camera.json", "w") as f:
+            json.dump(cam_data, f)
+
+        # 2. depth.png (as uint16)
+        # Assuming input depth is in meters, convert to mm for uint16 storage
+        depth_mm = (data["depth"] * 1000).astype(np.uint16)
+        Image.fromarray(depth_mm).save(save_path / "depth.png")
+
+        # 3. rgb.png
+        Image.fromarray(data["rgb"]).save(save_path / "rgb.png")
+
+        # 4. obj.ply
+        mesh.export(save_path / "obj.ply")
+
+    def convert(self, dataset_instance):
+        seq_name = dataset_instance.sequence_name
+        print(f"Processing sequence: {seq_name}")
+
+        sequence_folder = self.output_dir / seq_name
+
+        # Pre-process the mesh once per sequence
+        processed_mesh = self.process_mesh(dataset_instance.gt_mesh)
+
+        # Iterate through all frames in the dataset
+        for i in tqdm(range(len(dataset_instance)), leave=False):
+            data = dataset_instance[i]
+            self.save_frame(
+                sequence_folder,
+                i,
+                data,
+                processed_mesh,
+                dataset_instance.camera_intrinsics,
+            )
+
+
+# Example usage
 if __name__ == "__main__":
-    dataset = EOAT(
-        "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/ycb_in_eoat/bleach_hard_00_03_chaitanya"
-    )
-    print(dataset[0])
+    output_dir = "input_datasets"
+    converter = DatasetConverter(output_dir)
+    dataset_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/ycb_in_eoat"
+    for sequence in tqdm(os.listdir(dataset_dir), "converting"):
+        if sequence.endswith(".sh") or sequence in ["prod_ref", "models", "ref_views"]:
+            continue
+        if os.path.exists(f"{output_dir}/{sequence}"):
+            print(f"Sequence {sequence} already converted, skipping.")
+            continue
+        print(f"Converting sequence: {sequence}")
+        dataset = EOAT(f"{dataset_dir}/{sequence}")
+        converter.convert(dataset)
