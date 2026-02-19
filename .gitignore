@@ -1,0 +1,9 @@
+SAM-6D/Data
+SAM-6D/datasets
+SAM-6D/input_datasets
+*.pyc
+*.pth
+*.pt
+*.npy
+*.o
+*.npz

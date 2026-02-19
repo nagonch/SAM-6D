@@ -43,6 +43,7 @@ def get_parser():
     parser.add_argument(
         "--output_dir", nargs="?", help="Path to root directory of the output"
     )
+    parser.add_argument("--template_path", nargs="?", help="Path to templates")
     parser.add_argument("--cad_path", nargs="?", help="Path to CAD(mm)")
     parser.add_argument("--rgb_path", nargs="?", help="Path to RGB image")
     parser.add_argument("--depth_path", nargs="?", help="Path to Depth image(mm)")
@@ -77,6 +78,7 @@ def init():
     cfg.model_name = args.model
     cfg.log_dir = log_dir
     cfg.test_iter = args.iter
+    cfg.template_path = args.template_path
 
     cfg.output_dir = args.output_dir
     cfg.cad_path = args.cad_path
@@ -303,7 +305,7 @@ if __name__ == "__main__":
     gorilla.solver.load_checkpoint(model=model, filename=checkpoint)
 
     print("=> extracting templates ...")
-    tem_path = os.path.join(cfg.output_dir, "templates")
+    tem_path = os.path.join(cfg.template_path, "templates")
     all_tem, all_tem_pts, all_tem_choose = get_templates(tem_path, cfg.test_dataset)
     with torch.no_grad():
         all_tem_pts, all_tem_feat = model.feature_extraction.get_obj_feats(
@@ -322,7 +324,7 @@ if __name__ == "__main__":
     )
     ninstance = input_data["pts"].size(0)
 
-    print("=> running model ...")
+    print("=> running POSE ESTIMATION model ...")
     with torch.no_grad():
         input_data["dense_po"] = all_tem_pts.repeat(ninstance, 1, 1)
         input_data["dense_fo"] = all_tem_feat.repeat(ninstance, 1, 1)
@@ -347,7 +349,10 @@ if __name__ == "__main__":
         os.path.join(f"{cfg.output_dir}/sam6d_results", "detection_pem.json"), "w"
     ) as f:
         json.dump(detections, f)
-
+    print(
+        "predictions saved to: ",
+        os.path.join(f"{cfg.output_dir}/sam6d_results", "detection_pem.json"),
+    )
     print("=> visualizating ...")
     save_path = os.path.join(f"{cfg.output_dir}/sam6d_results", "vis_pem.png")
     valid_masks = pose_scores == pose_scores.max()
