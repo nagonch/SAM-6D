@@ -2,36 +2,59 @@
 
 # --- Configuration ---
 export SEGMENTOR_MODEL=sam
-DATASET_ROOT="/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/ycbv_lf"
-BASE_OUTPUT_DIR="results_sam6d/ycbv_lf"
+DATASET_ROOT="/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/LiFT_dataset"
+BASE_OUTPUT_DIR="results_sam6d/LiFT_dataset"
 
 # Paths to the model directories
 ISM_DIR="$(pwd)/Instance_Segmentation_Model"
 PEM_DIR="$(pwd)/Pose_Estimation_Model"
 
 # Mapping sequences to models
-sequence_names=(
-    "bleach_hard_00_03_chaitanya"
-    "bleach0"
-    "cracker_box_reorient"
-    "cracker_box_yalehand0"
-    "mustard_easy_00_02"
-    "mustard0"
-    "sugar_box_yalehand0"
-    "sugar_box1"
-    "tomato_soup_can_yalehand0"
-)
+# sequence_names=(
+#     "bleach_hard_00_03_chaitanya"
+#     "bleach0"
+#     "cracker_box_reorient"
+#     "cracker_box_yalehand0"
+#     "mustard_easy_00_02"
+#     "mustard0"
+#     "sugar_box_yalehand0"
+#     "sugar_box1"
+#     "tomato_soup_can_yalehand0"
+# )
 
+# model_names=(
+#     "021_bleach_cleanser"
+#     "021_bleach_cleanser"
+#     "003_cracker_box"
+#     "003_cracker_box"
+#     "006_mustard_bottle"
+#     "006_mustard_bottle"
+#     "004_sugar_box"
+#     "004_sugar_box"
+#     "005_tomato_soup_can"
+# )
+
+sequence_names=(
+    "box_motion_prod"
+    "car_prod"
+    "car_shiny_prod"
+    "jug_motion_prod"
+    "jug_tilt_prod"
+    "jug_translation_z_prod"
+    "shiny_box_tilt_prod"
+    "teabox_tilt_prod"
+    "teabox_translation_prod"
+)
 model_names=(
-    "021_bleach_cleanser"
-    "021_bleach_cleanser"
-    "003_cracker_box"
-    "003_cracker_box"
-    "006_mustard_bottle"
-    "006_mustard_bottle"
-    "004_sugar_box"
-    "004_sugar_box"
-    "005_tomato_soup_can"
+    "box_ref_prod"
+    "car_ref_prod"
+    "car_shiny_ref_prod"
+    "jug_ref_prod"
+    "jug_ref_prod"
+    "jug_ref_prod"
+    "shiny_box_ref_prod"
+    "teabox_ref_prod"
+    "teabox_ref_prod"
 )
 
 # --- Processing Loop ---
@@ -46,11 +69,11 @@ for i in "${!sequence_names[@]}"; do
     echo "STARTING SEQUENCE: $SEQ"
     echo "USING TEMPLATES: $MODEL_NAME"
     echo "================================================"
+    echo "Sequence Path: $SEQ_PATH"
 
     # Find all frame directories
     for FRAME_DIR_PATH in "$SEQ_PATH"/frame_*; do
         [ -d "$FRAME_DIR_PATH" ] || continue 
-        
         FRAME_NAME=$(basename "$FRAME_DIR_PATH")
         
         # Frame-specific inputs
