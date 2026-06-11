@@ -44,7 +44,7 @@ def depth_to_xyz_mm(depth_mm, K):
 
 def main():
     ref_dirs = sorted(glob.glob(os.path.join(REFERENCE_VIEWS_DIR, "*")))
-    ref_dirs = [d for d in ref_dirs if os.path.isdir(d)]
+    ref_dirs = [d for d in ref_dirs if os.path.isdir(d) and os.path.basename(d) != "gifs"]
 
     total = len(ref_dirs)
     for dir_idx, ref_dir in enumerate(ref_dirs):

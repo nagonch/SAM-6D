@@ -168,7 +168,10 @@ def get_templates(path, cfg):
     all_tem_choose = []
     all_tem_pts = []
 
-    total_nView = 42
+    import glob as _glob
+    actual = len(_glob.glob(os.path.join(path, "rgb_*.png")))
+    total_nView = actual if actual > 0 else 42
+    n_template_view = min(n_template_view, total_nView)
     for v in range(n_template_view):
         i = int(total_nView / n_template_view * v)
         tem, tem_choose, tem_pts = _get_template(path, cfg, i)
@@ -224,13 +227,7 @@ def get_test_data(
             rle = cocomask.frPyObjects(seg, h, w)
         except:
             rle = seg
-        # mask = cocomask.decode(rle)
-        sequence_name = rgb_path.split("/")[-3]
-        frame_number = rgb_path.split("/")[-2].strip("frame_")
-        mask_path = f"/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/LiFT_dataset/{sequence_name}/LF_{frame_number}/masks/0040.png"
-        mask = np.array(
-            Image.open(mask_path).resize((640, 360), resample=Image.NEAREST)
-        )
+        mask = cocomask.decode(rle)
         mask = np.logical_and(mask > 0, whole_depth > 0)
         if np.sum(mask) > 32:
             bbox = get_bbox(mask)
@@ -276,6 +273,9 @@ def get_test_data(
         all_rgb_choose.append(torch.IntTensor(rgb_choose).long())
         all_score.append(score)
         all_dets.append(inst)
+
+    if not all_cloud:
+        return None, whole_image, whole_pts.reshape(-1, 3), model_points, []
 
     ret_dict = {}
     ret_dict["pts"] = torch.stack(all_cloud).cuda()
@@ -328,6 +328,12 @@ if __name__ == "__main__":
         cfg.det_score_thresh,
         cfg.test_dataset,
     )
+    if input_data is None:
+        print("=> no valid detections after filtering, writing empty result")
+        os.makedirs(f"{cfg.output_dir}/sam6d_results", exist_ok=True)
+        with open(os.path.join(f"{cfg.output_dir}/sam6d_results", "detection_pem.json"), "w") as f:
+            json.dump([], f)
+        import sys; sys.exit(0)
     ninstance = input_data["pts"].size(0)
 
     print("=> running POSE ESTIMATION model ...")
