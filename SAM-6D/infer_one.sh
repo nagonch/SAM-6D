@@ -9,7 +9,7 @@ CUDA_VISIBLE_DEVICES=1
 ISM_DIR="$(pwd)/Instance_Segmentation_Model"
 PEM_DIR="$(pwd)/Pose_Estimation_Model"
 
-# # Mapping sequences to models
+# Mapping sequences to models
 # sequence_names=(
 #     "bleach_hard_00_03_chaitanya"
 #     "bleach0"
@@ -57,9 +57,6 @@ model_names=(
     "teabox_ref_prod"
 )
 
-declare -a runtimes=()
-total_runtime=0
-run_count=0
 
 # --- Processing Loop ---
 for i in "${!sequence_names[@]}"; do
@@ -96,6 +93,13 @@ for i in "${!sequence_names[@]}"; do
 
         # 1. Instance Segmentation
         pushd "$ISM_DIR" > /dev/null
+        echo $SEGMENTOR_MODEL
+        echo $FRAME_DIR_PATH
+        echo $CAD_PATH
+        echo $TEMPLATE_DIR
+        echo $RGB_PATH
+        echo $DEPTH_PATH
+        echo $CAMERA_PATH
         # python run_inference_custom.py \
         #     --segmentor_model "$SEGMENTOR_MODEL" \
         #     --output_dir "$FRAME_DIR_PATH" \
@@ -104,13 +108,12 @@ for i in "${!sequence_names[@]}"; do
         #     --rgb_path "$RGB_PATH" \
         #     --depth_path "$DEPTH_PATH" \
         #     --cam_path "$CAMERA_PATH"
-        popd > /dev/null
+        # popd > /dev/null
 
         # 2. Pose Estimation
         export SEG_PATH="$FRAME_DIR_PATH/sam6d_results/detection_ism.json"
 
         pushd "$PEM_DIR" > /dev/null
-        start_time=$(date +%s.%N)
         python run_inference_custom.py \
             --output_dir "$OUTPUT_DIR" \
             --cad_path "$CAD_PATH" \
@@ -119,23 +122,9 @@ for i in "${!sequence_names[@]}"; do
             --depth_path "$DEPTH_PATH" \
             --cam_path "$CAMERA_PATH" \
             --seg_path "$SEG_PATH"
-        end_time=$(date +%s.%N)
-        runtime=$(echo "$end_time - $start_time" | bc)
-        runtimes+=("$runtime")
-        total_runtime=$(echo "$total_runtime + $runtime" | bc)
-        ((run_count++))
         popd > /dev/null
+        exit 0
     done
 done
 
 echo "Success: All sequences processed."
-echo "========================================"
-echo "All runs finished."
-echo "Total runs: $run_count"
-
-if [ "$run_count" -gt 0 ]; then
-    avg_runtime=$(echo "$total_runtime / $run_count" | bc -l)
-    echo "Average runtime: $avg_runtime sec"
-else
-    echo "No runs executed."
-fi

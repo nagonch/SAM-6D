@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Base directory for the dataset
-BASE_PATH="/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/LiFT_dataset"
+BASE_PATH="/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/ycbv_eoat"
 
 # Define a mapping of Model Name -> Representative Sequence Name
 # This ensures we only run once per unique model.

@@ -7,3 +7,13 @@ SAM-6D/input_datasets
 *.npy
 *.o
 *.npz
+SAM-6D/Instance_Segmentation_Model/results_sam6d/*
+SAM-6D/Instance_Segmentation_Model/results_sam6d
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/results_sam6d/*
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/results_sam6d
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/build
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/build/*
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/dist
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/dist/*
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/pointnet2.egg-info
+/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/model/pointnet2/pointnet2.egg-info/*

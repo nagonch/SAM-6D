@@ -3,7 +3,7 @@ import json
 import os
 
 if __name__ == "__main__":
-    predictions_path = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/results_sam6d/ycbv_lf"
+    predictions_path = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/Pose_Estimation_Model/results_sam6d/LiFT_dataset"
     for filename in sorted(os.listdir(predictions_path)):
         if not os.path.isdir(os.path.join(predictions_path, filename)):
             continue

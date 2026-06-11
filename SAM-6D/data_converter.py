@@ -88,7 +88,11 @@ sequence_to_model_lift = {
 
 
 class EOAT:
-    def __init__(self, data_path):
+    def __init__(
+        self,
+        data_path,
+        ycbv_LF_path="/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/ycbv_lf",
+    ):
         assert os.path.exists(data_path), f"Data path {data_path} does not exist."
         self.data_path = data_path
         self.sequence_name = data_path.split("/")[-1]
@@ -99,6 +103,14 @@ class EOAT:
             self.model_name,
             "textured.obj",
         )
+        self.ycbv_LF_path = ycbv_LF_path
+        self.relevant_frames = [
+            int(item.strip("LF_"))
+            for item in list(
+                sorted(os.listdir(os.path.join(self.ycbv_LF_path, self.sequence_name)))
+            )
+            if "LF_" in item
+        ]
         self.gt_mesh = trimesh.load(self.model_path)
 
         self.camera_intrinsics = np.loadtxt(os.path.join(self.data_path, "cam_K.txt"))
@@ -122,6 +134,10 @@ class EOAT:
             os.path.join(self.masks_path, f)
             for f in sorted(os.listdir(self.masks_path))
         ]
+        self.rgb_frames = [self.rgb_frames[i] for i in self.relevant_frames]
+        self.depth_frames = [self.depth_frames[i] for i in self.relevant_frames]
+        self.pose_frames = [self.pose_frames[i] for i in self.relevant_frames]
+        self.mask_frames = [self.mask_frames[i] for i in self.relevant_frames]
 
     def __len__(self):
         return len(self.rgb_frames)
@@ -382,11 +398,11 @@ class DatasetConverter:
 
 
 if __name__ == "__main__":
-    output_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/LiFT_dataset"
+    output_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/input_datasets/ycbv_eoat"
     # Only specifying width now; height will adapt
     converter = DatasetConverter(output_dir, target_width=640)
 
-    dataset_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/LiFT_dataset"
+    dataset_dir = "/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/ycb_in_eoat"
 
     for sequence in tqdm(os.listdir(dataset_dir), "converting"):
         if sequence.endswith(".sh") or sequence in ["prod_ref", "models", "ref_views"]:
@@ -400,5 +416,5 @@ if __name__ == "__main__":
             print(f"Sequence {sequence} already converted, skipping.")
             continue
 
-        dataset = LIFT(seq_path)
+        dataset = EOAT(seq_path)
         converter.convert(dataset)

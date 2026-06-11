@@ -224,7 +224,13 @@ def get_test_data(
             rle = cocomask.frPyObjects(seg, h, w)
         except:
             rle = seg
-        mask = cocomask.decode(rle)
+        # mask = cocomask.decode(rle)
+        sequence_name = rgb_path.split("/")[-3]
+        frame_number = rgb_path.split("/")[-2].strip("frame_")
+        mask_path = f"/home/ngoncharov/cvpr2026/SAM-6D/SAM-6D/datasets/LiFT_dataset/{sequence_name}/LF_{frame_number}/masks/0040.png"
+        mask = np.array(
+            Image.open(mask_path).resize((640, 360), resample=Image.NEAREST)
+        )
         mask = np.logical_and(mask > 0, whole_depth > 0)
         if np.sum(mask) > 32:
             bbox = get_bbox(mask)
