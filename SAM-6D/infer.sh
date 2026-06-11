@@ -9,53 +9,31 @@ CUDA_VISIBLE_DEVICES=1
 ISM_DIR="$(pwd)/Instance_Segmentation_Model"
 PEM_DIR="$(pwd)/Pose_Estimation_Model"
 
-# # Mapping sequences to models
-# sequence_names=(
-#     "bleach_hard_00_03_chaitanya"
-#     "bleach0"
-#     "cracker_box_reorient"
-#     "cracker_box_yalehand0"
-#     "mustard_easy_00_02"
-#     "mustard0"
-#     "sugar_box_yalehand0"
-#     "sugar_box1"
-#     "tomato_soup_can_yalehand0"
-# )
-
-# model_names=(
-#     "021_bleach_cleanser"
-#     "021_bleach_cleanser"
-#     "003_cracker_box"
-#     "003_cracker_box"
-#     "006_mustard_bottle"
-#     "006_mustard_bottle"
-#     "004_sugar_box"
-#     "004_sugar_box"
-#     "005_tomato_soup_can"
-# )
-
+# Mapping sequences to models
 sequence_names=(
-    "box_motion_prod"
-    "car_prod"
-    "car_shiny_prod"
-    "jug_motion_prod"
-    "jug_tilt_prod"
-    "jug_translation_z_prod"
-    "shiny_box_tilt_prod"
-    "teabox_tilt_prod"
-    "teabox_translation_prod"
+    "bleach_hard_00_03_chaitanya"
+    "bleach0"
+    "cracker_box_reorient"
+    "cracker_box_yalehand0"
+    "mustard_easy_00_02"
+    "mustard0"
+    "sugar_box_yalehand0"
+    "sugar_box1"
+    "tomato_soup_can_yalehand0"
 )
+
 model_names=(
-    "box_ref_prod"
-    "car_ref_prod"
-    "car_shiny_ref_prod"
-    "jug_ref_prod"
-    "jug_ref_prod"
-    "jug_ref_prod"
-    "shiny_box_ref_prod"
-    "teabox_ref_prod"
-    "teabox_ref_prod"
+    "bleach_cleanser"
+    "bleach_cleanser"
+    "cracker_box"
+    "cracker_box"
+    "mustard_bottle"
+    "mustard_bottle"
+    "sugar_box"
+    "sugar_box"
+    "tomato_soup_can"
 )
+
 
 declare -a runtimes=()
 total_runtime=0
