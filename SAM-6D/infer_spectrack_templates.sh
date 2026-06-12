@@ -219,6 +219,7 @@ for DEPTH_MODE in "${DEPTH_MODES[@]}"; do
 
                     # ── ISM ──────────────────────────────────────────────────
                     echo -n "[ISM..."
+                    echo "  ISM cmd: cd $ISM_DIR && python3 run_inference_custom.py --segmentor_model $SEGMENTOR_MODEL --output_dir $OUTPUT_DIR --cad_path $CAD_PATH --template_dir $TEMPLATE_DIR --rgb_path $RGB_PATH --depth_path $DEPTH_PATH --cam_path $CAMERA_JSON_PATH"
                     if ! (cd "$ISM_DIR" && python3 run_inference_custom.py \
                             --segmentor_model "$SEGMENTOR_MODEL" \
                             --output_dir "$OUTPUT_DIR" \
@@ -237,6 +238,7 @@ for DEPTH_MODE in "${DEPTH_MODES[@]}"; do
                     # ── PEM ──────────────────────────────────────────────────
                     if [ "$FRAME_OK" = true ]; then
                         echo -n "[PEM..."
+                        echo "  PEM cmd: cd $PEM_DIR && python3 run_inference_custom.py --output_dir $OUTPUT_DIR --cad_path $CAD_PATH --template_path $TEMPLATE_DIR --rgb_path $RGB_PATH --depth_path $DEPTH_PATH --cam_path $CAMERA_JSON_PATH --seg_path $SEG_PATH"
                         if ! (cd "$PEM_DIR" && python3 run_inference_custom.py \
                                 --output_dir "$OUTPUT_DIR" \
                                 --cad_path "$CAD_PATH" \
